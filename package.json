@@ -1,0 +1,21 @@
+{
+  "name": "creditcoin-hack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "nuxt_data.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@gluwa/usc-sdk": "^0.18.0",
+    "dotenv": "^17.4.2",
+    "ethers": "^6.17.0"
+  }
+}
