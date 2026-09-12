@@ -10,6 +10,10 @@ import "../creditcoin/interfaces/INativeQueryVerifier.sol";
 contract MockNativeQueryVerifier is INativeQueryVerifier {
     event TransactionVerified(uint64 indexed chainKey, uint64 indexed blockHeight);
 
+    function calculateTxIndex(MerkleProof calldata) external pure override returns (uint64) {
+        return 0;
+    }
+
     function verify(
         uint64,
         uint64,

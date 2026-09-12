@@ -152,19 +152,7 @@ contract WeirDistributionASC is Ownable, ReentrancyGuard {
     ) external nonReentrant returns (bool success) {
         require(chainKey == SEPOLIA_CHAIN_KEY, "Unsupported source chain");
 
-        // 1. Calculate transaction index and unique query key for replay protection
-        uint256 transactionIndex = _calculateTransactionIndex(siblings);
-        bytes32 txKey;
-        assembly {
-            let ptr := mload(0x40)
-            mstore(ptr, chainKey)
-            mstore(add(ptr, 32), shl(192, blockHeight))
-            mstore(add(ptr, 40), transactionIndex)
-            txKey := keccak256(ptr, 72)
-        }
-        require(!processedQueries[txKey], "Query already processed (Replay protection)");
-
-        // 2. Cryptographically verify inclusion using native Block Prover Precompile (0x0FD2)
+        // 1. Cryptographically verify inclusion using native Block Prover Precompile (0x0FD2)
         INativeQueryVerifier.MerkleProof memory merkleProof = INativeQueryVerifier.MerkleProof({
             root: merkleRoot,
             siblings: siblings
@@ -175,7 +163,12 @@ contract WeirDistributionASC is Ownable, ReentrancyGuard {
             roots: continuityRoots
         });
 
-        bool verified = VERIFIER.verifyAndEmit(
+        // 2. Calculate transaction index and unique query key for replay protection
+        uint64 transactionIndex = VERIFIER.calculateTxIndex(merkleProof);
+        bytes32 txKey = keccak256(abi.encodePacked(chainKey, blockHeight, transactionIndex));
+        require(!processedQueries[txKey], "Query already processed (Replay protection)");
+
+        bool verified = VERIFIER.verify(
             chainKey,
             blockHeight,
             encodedTransaction,
@@ -297,17 +290,25 @@ contract WeirDistributionASC is Ownable, ReentrancyGuard {
         IEvmV1Decoder.ReceiptFields memory receipt = DECODER.decodeReceiptFields(encodedTransaction);
         require(receipt.receiptStatus == 1, "Source transaction did not succeed (status != 1)");
 
-        IEvmV1Decoder.LogEntry[] memory logs = DECODER.getLogsByEventSignature(receipt, REVENUE_DEPOSITED_SIG);
-        require(logs.length > 0, "No RevenueDeposited event found in transaction logs");
+        bool found = false;
+        bytes32 assetIdTopic;
+        bytes memory eventData;
 
-        IEvmV1Decoder.LogEntry memory targetLog = logs[0];
-        require(targetLog.topics.length >= 2, "Invalid topics length for RevenueDeposited");
+        for (uint256 i = 0; i < receipt.receiptLogs.length; i++) {
+            if (
+                receipt.receiptLogs[i].topics.length >= 2 &&
+                receipt.receiptLogs[i].topics[0] == REVENUE_DEPOSITED_SIG
+            ) {
+                assetIdTopic = receipt.receiptLogs[i].topics[1];
+                eventData = receipt.receiptLogs[i].data;
+                found = true;
+                break;
+            }
+        }
+        require(found, "No RevenueDeposited event found in transaction logs");
 
-        // Topic 1: indexed assetId
-        assetId = uint256(targetLog.topics[1]);
-
-        // Unpack non-indexed parameters: grossAmount, period, payor
-        (grossAmount, period, ) = abi.decode(targetLog.data, (uint256, uint256, address));
+        assetId = uint256(assetIdTopic);
+        (grossAmount, period) = abi.decode(eventData, (uint256, uint256));
 
         return (assetId, grossAmount, period);
     }

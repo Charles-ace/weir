@@ -1,0 +1,8 @@
+{
+  "network": "creditcoinTestnet",
+  "deployer": "0x053d9A40329F2Dac651BBEF2C94f20A485ad7Fd8",
+  "timestamp": "2026-09-12T00:32:45.000Z",
+  "contracts": {
+    "WeirDistributionASC": "0xe01236C5Fd875b47A8e6DE4F5c4B39959bba8d3C"
+  }
+}

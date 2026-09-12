@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "deployer": "0x053d9A40329F2Dac651BBEF2C94f20A485ad7Fd8",
+  "timestamp": "2026-09-12T00:12:14.547Z",
+  "contracts": {
+    "MockUSDC": "0xfB0321E0E9cB4Cf1bb801130a14dBcEDbcbaEbac",
+    "WeirVault": "0x13C40f20908C66A9c31D6102234c1095E12A31e3"
+  }
+}

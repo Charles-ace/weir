@@ -98,10 +98,11 @@ describe("WEIR Protocol Test Suite", function () {
       const topics = [
         eventSig,
         ethers.zeroPadValue(ethers.toBeHex(assetId), 32),
+        ethers.zeroPadValue(payorAddr, 32),
       ];
       const data = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["uint256", "uint256", "address"],
-        [grossAmount, period, payorAddr]
+        ["uint256", "uint256"],
+        [grossAmount, period]
       );
       return { eventSig, topics, data, status };
     }
