@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #04060A;
-  --foreground: #EDEAF3;
+  --background: #E2DFE9;
+  --foreground: #101010;
   --colors-cornflower: #71B1FF;
   --colors-smokey: #101010;
   --colors-jet: #2E2D30;
@@ -12,6 +12,8 @@
   --colors-granite: #636167;
   --colors-warning: #ED254E;
   --colors-attention: #FFCF23;
+  --colors-gray: #E2DFE9;
+  --colors-magnolia: #EDEAF3;
 }
 
 body {
