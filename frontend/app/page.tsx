@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -14,16 +17,19 @@ import {
   Lock, 
   CheckCircle, 
   Copy,
-  Search
+  Shield, 
+  ArrowRight, 
+  ChevronDown, 
+  ChevronUp 
 } from "lucide-react";
 
-export default function WeirDashboard() {
-  // Demo & Simulation State
+export default function WeirHomePage() {
+  // Interactive Simulation State
   const [isSimulatingShortfall, setIsSimulatingShortfall] = useState<boolean>(false);
   const [pipelineState, setPipelineState] = useState<"idle" | "depositing" | "attesting" | "verified">("idle");
   const [pipelineStep, setPipelineStep] = useState<number>(4);
   
-  // Cap-Table Balances (Seeded with live on-chain run values)
+  // Cap-Table Balances (Seeded with verified live on-chain run values)
   const [cumulativeIndex, setCumulativeIndex] = useState<number>(1.0);
   const [totalInflow, setTotalInflow] = useState<number>(10000);
   const [periodCount, setPeriodCount] = useState<number>(1);
@@ -38,6 +44,12 @@ export default function WeirDashboard() {
 
   const [charlieClaimable, setCharlieClaimable] = useState<number>(2000);
   const [charlieClaimed, setCharlieClaimed] = useState<number>(0);
+
+  // Dusk Stack Interactive Showcase State
+  const [activeStackTab, setActiveStackTab] = useState<number>(0);
+
+  // FAQ Accordion State
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Live Audit Log with verified testnet receipts
   const [auditLogs, setAuditLogs] = useState<Array<{
@@ -202,60 +214,81 @@ export default function WeirDashboard() {
     }
   };
 
+  const stackTabs = [
+    {
+      id: "vault",
+      category: "SOURCE CHAIN (L1)",
+      name: "WeirVault.sol",
+      status: "Live",
+      statusColor: "text-[#71B1FF] bg-[#71B1FF]/10 border-[#71B1FF]/30",
+      headline: "Unskimmable Revenue Reception Vault",
+      description: "Deployed directly to Ethereum Sepolia. Commercial tenants and off-takers pay revenues directly into this non-custodial smart contract, bypassing asset manager bank accounts entirely. Emits immutable receipt logs indexed with covenant targets.",
+      pills: ["Direct Tenant Deposits", "No Manager Discretion", "Custom Covenant Targets", "ERC-20 Inflows"],
+      link: "https://sepolia.etherscan.io/address/0x13C40f20908C66A9c31D6102234c1095E12A31e3"
+    },
+    {
+      id: "precompile",
+      category: "CONSENSUS VERIFIER",
+      name: "Precompile 0x0FD2",
+      status: "Testnet",
+      statusColor: "text-[#71B1FF] bg-[#71B1FF]/10 border-[#71B1FF]/30",
+      headline: "Native Merkle Receipt Inclusion Prover",
+      description: "Creditcoin CC3's native cryptographic precompile validates Sepolia transaction inclusion against BLS attestation quorums in ~15 seconds. Relayer-free and oracle-free: false deposits cannot be forged because validators prove Ethereum state roots natively.",
+      pills: ["Precompile 0x0FD2", "15s Inclusion Finality", "BLS Quorum Verification", "Zero Trusted Relayers"],
+      link: "/network"
+    },
+    {
+      id: "asc",
+      category: "SETTLEMENT ASC",
+      name: "WeirDistributionASC.sol",
+      status: "Testnet",
+      statusColor: "text-[#71B1FF] bg-[#71B1FF]/10 border-[#71B1FF]/30",
+      headline: "Deterministic O(1) Gas Dividend Allocator",
+      description: "Maintains a cumulative dividend index accumulator on Creditcoin. Unlocks instant allocation across thousands of fractional bond or equity holders. Eliminates catastrophic out-of-gas loops: investors pull their dividends in constant-time O(1) gas.",
+      pills: ["O(1) Gas Scalability", "Pull-Over-Push Architecture", "Zero Loop Re-entrancy", "$0.001 Claim Gas"],
+      link: "/developers"
+    },
+    {
+      id: "shortfall",
+      category: "COVENANT SENTRY",
+      name: "Hydraulic Shortfall Guard",
+      status: "Active",
+      statusColor: "text-[#ED254E] bg-[#ED254E]/10 border-[#ED254E]/30",
+      headline: "Automated Covenant Breach Detection",
+      description: "When commercial revenue falls below the agreed schedule (e.g. Sahara Solar paying $6,000 instead of $10,000), the protocol emits a cryptographic RevenueShortfall event, triggers cure periods, and automatically distributes available cash flow without stalling.",
+      pills: ["Real-Time Breach Alerts", "Automated Cure Periods", "Continuous Pro-Rata Flow", "Tamper-Evident Receipts"],
+      link: "/use-cases#covenants"
+    }
+  ];
+
+  const faqs = [
+    {
+      q: "Why does WEIR avoid third-party oracles like Chainlink for RWA cash flows?",
+      a: "Oracles rely on multi-sig nodes reading off-chain APIs. In RWA settlement, this reintroduces the exact counterparty risk we are solving: a manager can report fraudulent bank statements to an oracle. WEIR uses Creditcoin's native precompile 0x0FD2 to prove Ethereum Sepolia cryptographic receipt inclusion directly at the validator consensus layer."
+    },
+    {
+      q: "What is the 'Black-Box RWA Skim' and how does WEIR prevent it?",
+      a: "Over $12B of tokenized RWAs collect yield in private corporate bank accounts. Asset managers routinely deduct opaque 'operational fees', delay distributions for 60-90 days, or misreport gross collections. With WEIR, payers wire funds directly into WeirVault.sol on-chain, creating an unskimmable record before any manager can touch it."
+    },
+    {
+      q: "How does the O(1) cumulative dividend index prevent out-of-gas errors?",
+      a: "Traditional contracts iterate over an array of 5,000 token holders to push dividends, which crashes due to EVM block gas limits. WEIR updates a single global accumulator: cumulativeIndex += deposit / totalShares. Each investor pulls their dividend independently using: owed = shares * (cumulativeIndex - userIndex), costing constant O(1) gas (~35,000 gas, or <$0.001)."
+    },
+    {
+      q: "What happens if a tenant underpays their contractual revenue covenant?",
+      a: "If a tenant owes $10,000 under a power purchase agreement but only deposits $6,000, WEIR does not stall. It immediately proves the $6,000, updates the dividend index to distribute what was received, and emits an on-chain RevenueShortfall event to trigger automated legal cure periods or reserve drawdowns."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-[#E2DFE9] text-[#101010] font-sans antialiased selection:bg-[#71B1FF] selection:text-black">
       
       {/* 1. TOP DUSK NAVBAR (Framed Light Canvas) */}
-      <nav className="w-full max-w-[1550px] mx-auto px-6 lg:px-12 py-7 flex items-center justify-between">
-        {/* Left: WEIR Brand Mark & Protocol Identity */}
-        <div className="flex items-center gap-3">
-          <a href="/" className="flex items-center gap-3 group">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#101010] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 6H20M4 11H20M7 16H17M10 20H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="12" cy="11" r="2" fill="#71B1FF" />
-                </svg>
-              </div>
-              <span className="font-sans text-xl font-extrabold tracking-[0.14em] text-[#101010]">
-                WEIR
-              </span>
-            </div>
-            <span className="hidden sm:inline-block font-mono text-[10px] uppercase px-2 py-0.5 rounded-full bg-black/5 text-[#101010]/70 border border-black/10 font-medium">
-              CREDITCOIN RWA #4518
-            </span>
-          </a>
-        </div>
-
-        {/* Center: Navigation Links (Exact Dusk Header Typography & Spacing) */}
-        <ul className="hidden md:flex items-center gap-8 lg:gap-11 text-[11px] font-bold tracking-[0.16em] text-[#101010] uppercase">
-          <li><a href="#overview" className="hover:opacity-60 transition-opacity">OVERVIEW</a></li>
-          <li><a href="#architecture" className="hover:opacity-60 transition-opacity">INVARIANTS</a></li>
-          <li><a href="#console" className="hover:opacity-60 transition-opacity">SETTLEMENT</a></li>
-          <li><a href="#ledger" className="hover:opacity-60 transition-opacity">AUDIT LEDGER</a></li>
-        </ul>
-
-        {/* Right: Search + Action Pill Button */}
-        <div className="flex items-center gap-3">
-          <a 
-            href="#ledger" 
-            aria-label="Search Audit Trail" 
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#101010] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-[#F2EFF7] transition-all"
-          >
-            <Search className="w-4 h-4 text-[#101010]" />
-          </a>
-          <a 
-            href="#console" 
-            className="rounded-full bg-[#1C1C1E] hover:bg-black text-white px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-all shadow-sm active:scale-95"
-          >
-            LAUNCH CONSOLE
-          </a>
-        </div>
-      </nav>
+      <Navbar activePage="home" />
 
       {/* 2. THE DUSK HERO CARD (1:1 STRUCTURAL REPLICA POPULATED WITH WEIR DOMAIN) */}
       <section id="overview" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-12">
-        <div className="relative rounded-[28px] sm:rounded-[36px] md:rounded-[44px] bg-[#101010] overflow-hidden min-h-[580px] lg:min-h-[740px] flex flex-col justify-between pt-16 md:pt-24 shadow-2xl">
+        <div className="relative rounded-[28px] sm:rounded-[36px] md:rounded-[44px] bg-[#101010] overflow-hidden min-h-[640px] lg:min-h-[780px] flex flex-col justify-between pt-16 md:pt-24 shadow-2xl">
           
           {/* Exact Dusk Scan-Lines Background Pattern */}
           <div 
@@ -279,12 +312,18 @@ export default function WeirDashboard() {
               Creditcoin Attestcoin infrastructure for verifiable real-world revenues, cryptographic receipt proofs, and deterministic O(1) dividend settlement.
             </p>
 
-            <div className="pt-2 flex justify-center">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <a 
-                href="#console" 
+                href="#benefits" 
                 className="px-8 py-3.5 rounded-full bg-white hover:bg-[#EDEAF3] text-black text-xs font-bold uppercase tracking-wider transition-all shadow-lg active:scale-95"
               >
-                EXPLORE LIVE WORKSTATION
+                EXPLORE WEIR STACK
+              </a>
+              <a 
+                href="#console" 
+                className="px-8 py-3.5 rounded-full bg-[#1C1C1E] hover:bg-[#2A2A2D] text-white border border-[#2E2D30] text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95"
+              >
+                LAUNCH CONSOLE
               </a>
             </div>
           </div>
@@ -307,6 +346,19 @@ export default function WeirDashboard() {
                 alt="dunes" 
                 className="w-full object-cover select-none pointer-events-none -mb-1" 
               />
+            </div>
+
+            {/* Ecosystem / Network Anchors Bar (Exact Dusk Brands Strip) */}
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-40px)] max-w-4xl px-4 py-2.5 rounded-full bg-[#101010]/80 backdrop-blur-md border border-white/10 hidden sm:flex items-center justify-between font-mono text-[11px] text-[#A8A5AF] tracking-wider uppercase">
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#71B1FF]"></span> CREDITCOIN CC3</span>
+              <span className="text-white/20">•</span>
+              <span>ETHEREUM SEPOLIA</span>
+              <span className="text-white/20">•</span>
+              <span>PRECOMPILE 0x0FD2</span>
+              <span className="text-white/20">•</span>
+              <span>DORAHACKS RWA #4518</span>
+              <span className="text-white/20">•</span>
+              <span>FOUNDRY TESTED</span>
             </div>
           </div>
 
@@ -347,7 +399,235 @@ export default function WeirDashboard() {
         </div>
       </section>
 
-      {/* 4. VERIFIED TESTNET CONTRACTS DRAWER */}
+      {/* 4. PRODUCT BENEFITS / MARKET INFRASTRUCTURE (Dusk 4-Card Grid) */}
+      <section id="benefits" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-8">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-[0.16em] text-[#71B1FF]">
+            <span className="w-5 h-[1px] bg-[#71B1FF]"></span>
+            <span>MARKET INFRASTRUCTURE</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#101010]">
+            Institutional-Grade RWA Cash-Flow Settlement.
+          </h2>
+          <p className="text-sm text-[#636167] max-w-3xl">
+            Commercial properties, solar fields, and private credit yield over $12 Billion on-chain. WEIR replaces trusted manager bank accounts with cryptographic inclusion proofs and unskimmable execution.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Benefit Card 1 */}
+          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xl hover:border-[#71B1FF]/50 transition-all group">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#71B1FF] group-hover:scale-105 transition-transform">
+                <Shield className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold leading-snug">
+                Cryptographic Proofs,<br /><span className="text-[#71B1FF]">Not Oracles</span>
+              </h3>
+              <p className="text-xs text-[#A8A5AF] leading-relaxed">
+                Direct Ethereum Sepolia Merkle inclusion proofs verified inside Creditcoin precompile 0x0FD2. No multi-sig oracles can forge collections.
+              </p>
+            </div>
+            <Link href="/network" className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#71B1FF] hover:underline pt-2">
+              <span>HOW IT PROVES</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Benefit Card 2 */}
+          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xl hover:border-[#71B1FF]/50 transition-all group">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#71B1FF] group-hover:scale-105 transition-transform">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold leading-snug">
+                Unskimmable<br /><span className="text-[#71B1FF]">Hydraulic Vaults</span>
+              </h3>
+              <p className="text-xs text-[#A8A5AF] leading-relaxed">
+                Off-takers and tenants pay directly into on-chain vaults. Asset managers cannot intercept gross cash flow or inflate expense deductions.
+              </p>
+            </div>
+            <Link href="/developers" className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#71B1FF] hover:underline pt-2">
+              <span>VIEW VAULT SPECS</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Benefit Card 3 */}
+          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xl hover:border-[#71B1FF]/50 transition-all group">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#71B1FF] group-hover:scale-105 transition-transform">
+                <Cpu className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold leading-snug">
+                Deterministic<br /><span className="text-[#71B1FF]">O(1) Gas Math</span>
+              </h3>
+              <p className="text-xs text-[#A8A5AF] leading-relaxed">
+                Replaces high-gas loops with a single cumulative dividend accumulator. 50,000 investors claim independently in constant time for &lt;$0.001.
+              </p>
+            </div>
+            <Link href="/network#scaling" className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#71B1FF] hover:underline pt-2">
+              <span>DIVIDEND MATH</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Benefit Card 4 */}
+          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xl hover:border-[#ED254E]/50 transition-all group">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#ED254E] group-hover:scale-105 transition-transform">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold leading-snug">
+                Automated<br /><span className="text-[#ED254E]">Covenant Sentry</span>
+              </h3>
+              <p className="text-xs text-[#A8A5AF] leading-relaxed">
+                Shortfall breaches automatically trigger on-chain events and cure timers. Available cash distributes without blocking the entire pipeline.
+              </p>
+            </div>
+            <Link href="/use-cases#covenants" className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#ED254E] hover:underline pt-2">
+              <span>SHORTFALL ALERTS</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. INTERACTIVE PRODUCTS SHOWCASE (Dusk Stack Component) */}
+      <section className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-8">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-[0.16em] text-[#71B1FF]">
+            <span className="w-5 h-[1px] bg-[#71B1FF]"></span>
+            <span>WEIR CORE STACK</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#101010]">
+            Modular Settlement Architecture.
+          </h2>
+        </div>
+
+        <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-10 shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            
+            {/* Left Tabs List (Dusk Style) */}
+            <div className="lg:col-span-5 flex flex-col justify-between space-y-3 border-b lg:border-b-0 lg:border-r border-[#2E2D30] pb-6 lg:pb-0 lg:pr-8">
+              <div className="space-y-3 font-mono">
+                {stackTabs.map((tab, idx) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveStackTab(idx)}
+                    className={`w-full p-4 rounded-2xl text-left transition-all border flex items-center justify-between ${
+                      activeStackTab === idx 
+                        ? "bg-[#1C1C1E] border-[#71B1FF] shadow-md" 
+                        : "bg-[#090D15]/60 border-[#2E2D30] hover:bg-[#1A1A1A] text-[#A8A5AF]"
+                    }`}
+                  >
+                    <div>
+                      <p className="text-[10px] uppercase text-[#636167] tracking-wider">{tab.category}</p>
+                      <p className={`text-sm font-bold ${activeStackTab === idx ? "text-white" : "text-[#A8A5AF]"}`}>
+                        {tab.name}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] uppercase px-2 py-0.5 rounded-full border font-semibold ${tab.statusColor}`}>
+                      {tab.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#090D15] border border-[#2E2D30] font-mono text-[11px] text-[#636167] space-y-1">
+                <p className="text-white font-bold">Tested under load with Foundry &amp; Echidna</p>
+                <p>11 Passed Tests · 10,000 Fuzz Runs · 0 Invariant Violations</p>
+              </div>
+            </div>
+
+            {/* Right Featured Display Panel */}
+            <div className="lg:col-span-7 flex flex-col justify-between space-y-6 lg:pl-4">
+              <div className="space-y-4">
+                <span className="text-[11px] font-mono font-bold text-[#71B1FF] uppercase tracking-wider">
+                  {stackTabs[activeStackTab].category}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {stackTabs[activeStackTab].headline}
+                </h3>
+                <p className="text-sm sm:text-base text-[#A8A5AF] leading-relaxed">
+                  {stackTabs[activeStackTab].description}
+                </p>
+
+                <div className="pt-2 flex flex-wrap gap-2">
+                  {stackTabs[activeStackTab].pills.map((pill, i) => (
+                    <span 
+                      key={i} 
+                      className="px-3 py-1 rounded-full bg-[#1A1A1A] border border-[#2E2D30] font-mono text-[11px] text-white"
+                    >
+                      {pill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-between border-t border-[#2E2D30]">
+                <span className="text-xs font-mono text-[#636167]">
+                  Module: <code className="text-[#71B1FF]">{stackTabs[activeStackTab].name}</code>
+                </span>
+                <a 
+                  href={stackTabs[activeStackTab].link}
+                  className="px-5 py-2.5 rounded-full bg-white hover:bg-[#EDEAF3] text-black text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5"
+                >
+                  <span>Explore Module</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 6. INSTITUTIONAL CASE STUDY SPOTLIGHT (Sahara Solar Array #4) */}
+      <section className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-8">
+        <div className="rounded-3xl bg-[#EDEAF3] border border-[#101010]/15 p-6 sm:p-10 shadow-lg space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#101010]/10">
+            <div className="space-y-1">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-[0.14em] text-[#71B1FF]">
+                CASE STUDY SPOTLIGHT · RWA #4518
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101010]">
+                Sahara Commercial Solar Array #4
+              </h3>
+            </div>
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-[#101010] text-xs font-mono font-bold border border-black/10 shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-[#71B1FF]" />
+              Live PPA Revenue Covenant
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <p className="text-[11px] font-mono text-[#636167] uppercase tracking-wider">01 · THE PROBLEM</p>
+              <h4 className="text-lg font-bold text-[#101010]">45-Day Delays &amp; Fee Skimming</h4>
+              <p className="text-xs text-[#2E2D30]/80 leading-relaxed">
+                Commercial off-taker deposited utility payments into an offshore intermediary account. The asset manager deducted 8% in arbitrary &quot;advisory costs&quot; and delayed cap-table payouts by 45 days.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-[11px] font-mono text-[#636167] uppercase tracking-wider">02 · THE WEIR SOLUTION</p>
+              <h4 className="text-lg font-bold text-[#101010]">Direct Vault &amp; 0x0FD2 Prover</h4>
+              <p className="text-xs text-[#2E2D30]/80 leading-relaxed">
+                Tenant now wires USDC directly into <code className="font-mono text-black font-semibold">WeirVault.sol</code> on Sepolia. In 15 seconds, Creditcoin CC3 verifies inclusion and computes Alice, Bob, and Charlie dividends instantly.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-[11px] font-mono text-[#636167] uppercase tracking-wider">03 · VERIFIED RESULTS</p>
+              <h4 className="text-lg font-bold text-[#101010]">0% Skim &amp; $0.001 Pull Gas</h4>
+              <p className="text-xs text-[#2E2D30]/80 leading-relaxed">
+                Zero manager discretion. 100% of the $10,000 gross payment flows to investors in exact covenant proportions (50% / 30% / 20%) in constant O(1) gas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. VERIFIED TESTNET CONTRACTS DRAWER */}
       <section className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-12">
         <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 md:p-8 shadow-xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#2E2D30] font-mono text-xs">
@@ -442,65 +722,14 @@ export default function WeirDashboard() {
         </div>
       </section>
 
-      {/* 5. DUSK SPOTLIGHT / 3-COLUMN ARCHITECTURE */}
-      <section id="architecture" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-12 space-y-6">
+      {/* 8. INTERACTIVE SETTLEMENT WORKSTATION (The Engine) */}
+      <section id="console" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-6">
         <div className="space-y-2">
-          <p className="text-xs font-mono text-[#71B1FF] uppercase tracking-wider font-bold">INSTITUTIONAL INVARIANTS</p>
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#101010]">
-            Built for unskimmable onchain finance.
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Col 1 */}
-          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-8 space-y-4 shadow-xl">
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#ED254E]">
-              <AlertTriangle className="w-5 h-5 text-[#ED254E]" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-[#636167]">01 · THE VULNERABILITY</p>
-              <h3 className="text-xl font-bold text-white">The Black-Box RWA Skim</h3>
-              <p className="text-xs text-[#A8A5AF] leading-relaxed">
-                Off-chain RWA managers collect commercial cash flows in private bank accounts. They insert opaque &quot;administrative deductions&quot;, manipulate expense line items on spreadsheets, and delay investor distributions by 30 to 90 days.
-              </p>
-            </div>
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-[0.16em] text-[#71B1FF]">
+            <span className="w-5 h-[1px] bg-[#71B1FF]"></span>
+            <span>LIVE WORKSTATION</span>
           </div>
-
-          {/* Col 2 */}
-          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-8 space-y-4 shadow-xl">
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#71B1FF]">
-              <Lock className="w-5 h-5 text-[#71B1FF]" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-[#636167]">02 · THE ARCHITECTURE</p>
-              <h3 className="text-xl font-bold text-white">Attestcoin Cryptographic Invariant</h3>
-              <p className="text-xs text-[#A8A5AF] leading-relaxed">
-                Commercial tenants pay directly into <code className="text-white">WeirVault.sol</code> on Ethereum Sepolia. Creditcoin&apos;s native precompile <code className="text-[#71B1FF]">0x0FD2</code> validates transaction receipt inclusion in 15s. No trusted third-party oracle can falsify the deposit gross amount.
-              </p>
-            </div>
-          </div>
-
-          {/* Col 3 */}
-          <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-8 space-y-4 shadow-xl">
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] border border-[#2E2D30] flex items-center justify-center text-[#71B1FF]">
-              <Cpu className="w-5 h-5 text-[#71B1FF]" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-[#636167]">03 · THE GUARANTEE</p>
-              <h3 className="text-xl font-bold text-white">Deterministic O(1) Settlement</h3>
-              <p className="text-xs text-[#A8A5AF] leading-relaxed">
-                Rather than iterating through massive arrays (risking out-of-gas errors), WEIR updates a global dividend index. Thousands of fractional investors pull their earned dividends individually at constant-time O(1) gas on Creditcoin CC3.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. INTERACTIVE SETTLEMENT WORKSTATION */}
-      <section id="console" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-12 space-y-6">
-        <div className="space-y-2">
-          <p className="text-xs font-mono text-[#71B1FF] uppercase tracking-wider font-bold">LIVE WORKSTATION</p>
-          <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#101010]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#101010]">
             Institutional Settlement Console.
           </h2>
           <p className="text-xs text-[#636167]">
@@ -771,7 +1000,7 @@ export default function WeirDashboard() {
         </div>
       </section>
 
-      {/* 7. LIVE CRYPTOGRAPHIC SETTLEMENT AUDIT LEDGER */}
+      {/* 9. LIVE CRYPTOGRAPHIC SETTLEMENT AUDIT LEDGER */}
       <section id="ledger" className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-4">
         <div className="flex items-center justify-between font-mono text-xs text-[#636167]">
           <div className="flex items-center gap-2 text-[#101010] font-bold uppercase tracking-wider">
@@ -842,50 +1071,85 @@ export default function WeirDashboard() {
         </div>
       </section>
 
-      {/* 8. DUSK-GRADE FRAMED FOOTER */}
-      <footer className="w-full max-w-[1550px] mx-auto px-6 lg:px-12 py-12 border-t border-[#101010]/10 space-y-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#101010]">
-              Unskimmable <span className="text-[#71B1FF]">and</span> Decentralized Finance.
-            </h3>
-            <p className="text-xs text-[#636167]">
-              Creditcoin Attestcoin Protocol (Precompile 0x0FD2) · BUIDL CTC 2026 Fall Hackathon (Track 2: RWA #4518)
-            </p>
+      {/* 10. PROTOCOL FAQ ACCORDION (Exact Dusk Accordion Style) */}
+      <section className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16 space-y-8">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-[0.16em] text-[#71B1FF]">
+            <span className="w-5 h-[1px] bg-[#71B1FF]"></span>
+            <span>SYSTEM ARCHITECTURE FAQ</span>
           </div>
-          <div className="flex items-center gap-3">
-            <a 
-              href="https://creditcoin-testnet.blockscout.com/address/0xe01236C5Fd875b47A8e6DE4F5c4B39959bba8d3C"
-              target="_blank"
-              rel="noreferrer"
-              className="px-5 py-2.5 rounded-full bg-white hover:bg-[#F2EFF7] border border-[#2E2D30]/20 text-xs font-mono text-[#101010] font-semibold transition-all flex items-center gap-2 shadow-sm"
-            >
-              <span>Creditcoin Blockscout</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#636167]" />
-            </a>
-            <a 
-              href="https://sepolia.etherscan.io/address/0x13C40f20908C66A9c31D6102234c1095E12A31e3"
-              target="_blank"
-              rel="noreferrer"
-              className="px-5 py-2.5 rounded-full bg-white hover:bg-[#F2EFF7] border border-[#2E2D30]/20 text-xs font-mono text-[#101010] font-semibold transition-all flex items-center gap-2 shadow-sm"
-            >
-              <span>Sepolia Etherscan</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#636167]" />
-            </a>
-          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#101010]">
+            Frequently Asked Technical Questions.
+          </h2>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#101010]/10 font-mono text-[11px] text-[#636167]">
-          <p>© 2026 WEIR Protocol. Built for Creditcoin BUIDL Hackathon. All Rights Reserved.</p>
-          <div className="flex items-center gap-4">
-            <span>Deterministic Settlement</span>
-            <span>•</span>
-            <span>O(1) Gas Scalability</span>
-            <span>•</span>
-            <span>Zero-Manager Discretion</span>
+        <div className="rounded-3xl bg-[#101010] text-white border border-[#2E2D30]/80 p-6 sm:p-10 shadow-xl space-y-4">
+          <div className="divide-y divide-[#2E2D30]">
+            {faqs.map((faq, i) => (
+              <div key={i} className="py-5">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between text-left gap-4 group"
+                >
+                  <span className="text-base sm:text-lg font-bold text-white group-hover:text-[#71B1FF] transition-colors">
+                    {faq.q}
+                  </span>
+                  <div className="w-8 h-8 rounded-full bg-[#1C1C1E] border border-[#2E2D30] flex items-center justify-center flex-shrink-0 text-[#A8A5AF] group-hover:text-white transition-colors">
+                    {openFaq === i ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </button>
+                {openFaq === i && (
+                  <div className="pt-4 text-xs sm:text-sm text-[#A8A5AF] leading-relaxed max-w-4xl animate-in fade-in duration-200">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* 11. INSTITUTIONAL CALL-TO-ACTION CARD (Dusk Hero-Generic Banner) */}
+      <section className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-12 pb-16">
+        <div className="rounded-[36px] bg-[#101010] text-white border border-[#2E2D30] p-8 sm:p-16 relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div 
+            className="absolute inset-0 opacity-40 pointer-events-none"
+            style={{
+              backgroundImage: "url('/hero-lines.svg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center"
+            }}
+          ></div>
+          <div className="relative z-10 space-y-4 max-w-2xl">
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.16em] text-[#71B1FF]">
+              BUIDL FOR THE REAL WORLD
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight leading-tight">
+              Ready to deploy unskimmable cash-flow infrastructure?
+            </h2>
+            <p className="text-xs sm:text-sm text-[#A8A5AF] leading-relaxed">
+              Integrate WEIR flow dividers into your tokenized real estate, energy arrays, or debt facilities with precompile 0x0FD2.
+            </p>
+          </div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <Link 
+              href="/developers" 
+              className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-white hover:bg-[#EDEAF3] text-black text-xs font-bold uppercase tracking-wider transition-all shadow-lg active:scale-95"
+            >
+              DEVELOPER DOCS
+            </Link>
+            <Link 
+              href="/network" 
+              className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-[#1C1C1E] hover:bg-[#28282B] text-white border border-[#2E2D30] text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95"
+            >
+              EXPLORE PRECOMPILE
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 12. DUSK-GRADE FRAMED FOOTER */}
+      <Footer />
 
     </div>
   );
