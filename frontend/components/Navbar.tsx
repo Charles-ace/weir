@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 
 interface NavbarProps {
-  activePage?: "home" | "network" | "developers" | "use-cases" | "about";
+  activePage?: "home" | "network" | "developers" | "console";
 }
 
 export default function Navbar({ activePage = "home" }: NavbarProps) {
@@ -61,18 +61,10 @@ export default function Navbar({ activePage = "home" }: NavbarProps) {
         </li>
         <li>
           <Link 
-            href="/use-cases" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "use-cases" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
+            href="/console" 
+            className={`transition-opacity hover:opacity-60 ${activePage === "console" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
           >
-            USE CASES
-          </Link>
-        </li>
-        <li>
-          <Link 
-            href="/about" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "about" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
-          >
-            ABOUT
+            CONSOLE
           </Link>
         </li>
       </ul>
@@ -80,14 +72,14 @@ export default function Navbar({ activePage = "home" }: NavbarProps) {
       {/* Right: Search + Action Pill Button */}
       <div className="flex items-center gap-3">
         <Link 
-          href="/#ledger" 
+          href="/console#ledger" 
           aria-label="Search Audit Trail" 
           className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#101010] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-[#F2EFF7] transition-all"
         >
           <Search className="w-4 h-4 text-[#101010]" />
         </Link>
         <Link 
-          href="/#console" 
+          href="/console" 
           className="hidden sm:inline-flex rounded-full bg-[#1C1C1E] hover:bg-black text-white px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-all shadow-sm active:scale-95"
         >
           LAUNCH CONSOLE
@@ -116,18 +108,15 @@ export default function Navbar({ activePage = "home" }: NavbarProps) {
             Home
           </Link>
           <Link href="/network" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            Network & Precompile 0x0FD2
+            Network &amp; Precompile 0x0FD2
           </Link>
           <Link href="/developers" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            Developers & Contracts
+            Developers &amp; Contracts
           </Link>
-          <Link href="/use-cases" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            RWA Use Cases & Solar PPA
+          <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
+            Settlement Console
           </Link>
-          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            About & Problem Statement
-          </Link>
-          <Link href="/#console" onClick={() => setMobileMenuOpen(false)} className="mt-2 text-center rounded-full bg-white text-black py-3 text-xs font-bold uppercase tracking-wider">
+          <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="mt-2 text-center rounded-full bg-white text-black py-3 text-xs font-bold uppercase tracking-wider">
             Launch Console
           </Link>
         </div>
