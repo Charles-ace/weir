@@ -99,4 +99,103 @@ class WeirRelayer {
   }
 }
 
-module.exports = { WeirRelayer };
+/**
+ * Continuous autonomous daemon loop
+ */
+async function startDaemon() {
+  const fs = require("fs");
+  const path = require("path");
+
+  console.log("===============================================================================");
+  console.log("  WEIR ATTESTCOIN CONTINUOUS RELAYER DAEMON");
+  console.log("  Mode: Autonomous Background Worker (Docker / Railway / Cloud)");
+  console.log("===============================================================================\n");
+
+  let weirVaultAddr = process.env.WEIR_VAULT_ADDRESS;
+  let weirASCAddr = process.env.WEIR_ASC_ADDRESS;
+
+  try {
+    const sepoliaDep = JSON.parse(fs.readFileSync(path.join(__dirname, "../deployments/sepolia.json"), "utf8"));
+    const cc3Dep = JSON.parse(fs.readFileSync(path.join(__dirname, "../deployments/creditcoinTestnet.json"), "utf8"));
+    weirVaultAddr = weirVaultAddr || sepoliaDep.contracts.WeirVault;
+    weirASCAddr = weirASCAddr || cc3Dep.contracts.WeirDistributionASC;
+  } catch (err) {
+    console.log("  [WARN] Deployments file not read, using env fallback:", err.message);
+  }
+
+  const privateKey = process.env.PRIVATE_KEY;
+  if (!privateKey) {
+    console.error("  [FATAL] PRIVATE_KEY environment variable is required to submit CC3 proofs!");
+    process.exit(1);
+  }
+
+  console.log(`  Vault Address (Sepolia): ${weirVaultAddr}`);
+  console.log(`  ASC Address (CC3):       ${weirASCAddr}`);
+  console.log(`  Sepolia RPC:             ${SEPOLIA_RPC}`);
+  console.log(`  CC3 RPC:                 ${CC3_RPC}`);
+  console.log(`  Proof Builder URL:       ${PROVER_URL}\n`);
+
+  const relayer = new WeirRelayer(weirASCAddr, privateKey);
+  const sepoliaProvider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+
+  const VAULT_ABI = [
+    "event RevenueDeposited(uint256 indexed assetId, uint256 grossAmount, uint256 period, address payor)"
+  ];
+  const vault = new ethers.Contract(weirVaultAddr, VAULT_ABI, sepoliaProvider);
+
+  let currentBlock = await sepoliaProvider.getBlockNumber();
+  let lastScannedBlock = currentBlock - 10; // scan past 10 blocks on boot
+  console.log(`[DAEMON] Initialized at Sepolia block #${currentBlock}. Beginning continuous polling...\n`);
+
+  const processedTxs = new Set();
+
+  const pollIntervalMs = 12000; // 12-second Sepolia block time
+  let heartbeatCounter = 0;
+
+  setInterval(async () => {
+    try {
+      const latest = await sepoliaProvider.getBlockNumber();
+      if (latest > lastScannedBlock) {
+        const fromBlock = lastScannedBlock + 1;
+        const toBlock = latest;
+
+        const filter = vault.filters.RevenueDeposited();
+        const events = await vault.queryFilter(filter, fromBlock, toBlock);
+
+        if (events.length > 0) {
+          console.log(`\n[DAEMON] Detected ${events.length} new RevenueDeposited event(s) in blocks ${fromBlock}..${toBlock}!`);
+          for (const ev of events) {
+            const txHash = ev.transactionHash;
+            if (!processedTxs.has(txHash)) {
+              processedTxs.add(txHash);
+              console.log(`[DAEMON] Relaying transaction: ${txHash}...`);
+              try {
+                const res = await relayer.relayTransaction(txHash);
+                console.log(`[DAEMON] Successfully settled on CC3: ${res.cc3TxHash}\n`);
+              } catch (relayErr) {
+                console.error(`[DAEMON ERROR] Failed to relay ${txHash}:`, relayErr.message);
+              }
+            }
+          }
+        }
+        lastScannedBlock = toBlock;
+      }
+
+      heartbeatCounter++;
+      if (heartbeatCounter % 5 === 0) {
+        console.log(`[HEARTBEAT] Relayer active | Sepolia block: #${lastScannedBlock} | CC3: ${weirASCAddr} | Monitored`);
+      }
+    } catch (pollErr) {
+      console.error("[DAEMON POLL ERROR]", pollErr.message);
+    }
+  }, pollIntervalMs);
+}
+
+if (require.main === module) {
+  startDaemon().catch((err) => {
+    console.error("Fatal daemon error:", err);
+    process.exit(1);
+  });
+}
+
+module.exports = { WeirRelayer, startDaemon };
