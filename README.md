@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/weir_logo.png" width="128" height="128" alt="WEIR Protocol Logo" />
+</p>
+
 # `WEIR` — Unskimmable RWA Cash-Flow & Dividend Settlement
 
 > **`WEIR` turns messy off-chain commercial revenue into an unskimmable dividend pipe—cryptographically proving Ethereum revenue inflows via Attestcoin to mathematically settle fractional investor payouts on Creditcoin.**
@@ -5,6 +9,8 @@
 [![Creditcoin CC3 Testnet](https://img.shields.io/badge/Creditcoin-CC3_Testnet_(102031)-06B6D4?style=flat-square)](https://creditcoin.org)
 [![Attestcoin Protocol](https://img.shields.io/badge/Attestcoin_Protocol-Precompile_0x0FD2-10B981?style=flat-square)](https://docs.attestcoin.org)
 [![Ethereum Sepolia](https://img.shields.io/badge/Ethereum-Sepolia_(11155111)-627EEA?style=flat-square)](https://sepolia.etherscan.io)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-weir--protocol.vercel.app-000000?style=flat-square&logo=vercel)](https://weir-protocol.vercel.app)
+[![Railway Relayer](https://img.shields.io/badge/Railway-Relayer_Worker_Online-0B0D0E?style=flat-square&logo=railway)](https://railway.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-slate?style=flat-square)](LICENSE)
 
 ---
@@ -14,6 +20,9 @@
 - **Platform:** DoraHacks (`https://dorahacks.io/hackathon/buidl-ctc-2026-fall/detail`)
 - **Track:** **Track 2 — Real-World Assets (RWA)** *(Track ID: `4518`)*
 - **Theme:** Attestcoin Protocol (Universal Smart Contracts / USC)
+- **Live Web Application:** [https://weir-protocol.vercel.app](https://weir-protocol.vercel.app)
+- **Live Protocol Console:** [https://weir-protocol.vercel.app/console](https://weir-protocol.vercel.app/console)
+- **Autonomous Relayer Daemon:** Deployed on Railway (`restart: unless-stopped`, 24/7 background worker)
 
 ---
 
@@ -157,7 +166,8 @@ npm run test:e2e
 *Validates full-cycle $10k inflow, Attestcoin 4-stage pipeline, O(1) pull-claims, and covenant shortfall breach alerts.*
 
 ### 4. Live Production Deployment
-- **Web Console & Documentation:** [https://frontend-omega-nine-48.vercel.app](https://frontend-omega-nine-48.vercel.app)
+- **Web Console & Documentation:** [https://weir-protocol.vercel.app](https://weir-protocol.vercel.app) (Console: [https://weir-protocol.vercel.app/console](https://weir-protocol.vercel.app/console))
+- **Live Background Relayer (Railway):** [Railway Dashboard](https://railway.com) (`● Online`, Continuous Attestcoin worker)
 - **Local Dev:** `npm run dev --prefix frontend` (loads on [http://localhost:3000](http://localhost:3000))
 
 ---
