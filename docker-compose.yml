@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  weir-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: weir-relayer-daemon
+    restart: unless-stopped
+    environment:
+      - SEPOLIA_RPC=${SEPOLIA_RPC:-https://ethereum-sepolia-rpc.publicnode.com}
+      - CC3_RPC=${CC3_RPC:-https://rpc.cc3-testnet.creditcoin.network}
+      - PROVER_URL=${PROVER_URL:-https://prover.cc3-testnet.creditcoin.network}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+    env_file:
+      - .env
