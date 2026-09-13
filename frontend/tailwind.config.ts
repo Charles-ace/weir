@@ -28,9 +28,31 @@ const config: Config = {
           attention: "#FFCF23",
           success: "#71B1FF",
         },
+        brand: {
+          "black-v2": "#0E0E0E",
+          "black-v2-700": "#161616",
+          "blue-v2": "#3773FF",
+          "white-v2": "#FDFCFC",
+          "grey-v2": "#2F2F2F",
+          "grey-v2-400": "#B0B0B0",
+          "turquoise-v2": "#03BFD4",
+          "orange-v2": "#F38600",
+          "purple-v2": "#885FFF",
+        },
+      },
+      gridTemplateColumns: {
+        "24": "repeat(24, minmax(0, 1fr))",
       },
     },
   },
+  safelist: [
+    "grid-cols-24",
+    "grid-cols-12",
+    "grid-cols-10",
+    "col-span-2",
+    "col-span-3",
+    "col-span-4",
+  ],
   plugins: [],
 };
 export default config;

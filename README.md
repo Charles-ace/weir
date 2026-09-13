@@ -118,14 +118,17 @@ Per project authorization, the frontend directly adopts the layout, spacing rhyt
 
 | Network | Component | Address / Endpoint | Status |
 | :--- | :--- | :--- | :--- |
+| **Creditcoin CC3 Testnet** | `WeirDistributionASC` | [`0xe01236C5Fd875b47A8e6DE4F5c4B39959bba8d3C`](https://creditcoin-testnet.blockscout.com/address/0xe01236C5Fd875b47A8e6DE4F5c4B39959bba8d3C) | **REAL** |
 | **Creditcoin CC3 Testnet** | Block Prover Precompile | `0x0000000000000000000000000000000000000FD2` | **REAL (Native)** |
 | **Creditcoin CC3 Testnet** | Chain Info Precompile | `0x0000000000000000000000000000000000000FD3` | **REAL (Native)** |
 | **Creditcoin CC3 Testnet** | EvmV1Decoder Library | `0x731c345d79Fb8BbDC541f9DF3b6317585F849F9f` | **REAL** |
 | **Creditcoin CC3 Testnet** | RPC Endpoint | `https://rpc.cc3-testnet.creditcoin.network` (Chain ID 102031) | **REAL** |
+| **Ethereum Sepolia** | `WeirVault` | [`0x13C40f20908C66A9c31D6102234c1095E12A31e3`](https://sepolia.etherscan.io/address/0x13C40f20908C66A9c31D6102234c1095E12A31e3) | **REAL** |
+| **Ethereum Sepolia** | `MockUSDC` | [`0xfB0321E0E9cB4Cf1bb801130a14dBcEDbcbaEbac`](https://sepolia.etherscan.io/address/0xfB0321E0E9cB4Cf1bb801130a14dBcEDbcbaEbac) | **MOCKED (Faucet)** |
 | **Ethereum Sepolia** | RPC Endpoint | `https://ethereum-sepolia-rpc.publicnode.com` (Chain ID 11155111) | **REAL** |
 | **Attestcoin Protocol** | Proof Builder API | `https://prover.cc3-testnet.creditcoin.network` | **REAL (HTTP 200)** |
 
-*Complete honesty disclosure: see [REAL_VS_MOCKED.md](REAL_VS_MOCKED.md).*
+*Complete honesty disclosure: see [REAL_VS_MOCKED.md](REAL_VS_MOCKED.md) and [docs/REAL_VS_MOCKED.md](docs/REAL_VS_MOCKED.md).*
 
 ---
 

@@ -2,123 +2,140 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import WeirLogo from "@/components/WeirLogo";
 
 interface NavbarProps {
-  activePage?: "home" | "network" | "developers" | "console";
+  activePage?: "home" | "platforms" | "console" | "architecture" | "docs";
 }
 
 export default function Navbar({ activePage = "home" }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="w-full max-w-[1550px] mx-auto px-6 lg:px-12 py-7 flex items-center justify-between relative z-50">
-      {/* Left: WEIR Brand Mark & Protocol Identity */}
-      <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#101010] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 6H20M4 11H20M7 16H17M10 20H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <circle cx="12" cy="11" r="2" fill="#71B1FF" />
-              </svg>
-            </div>
-            <span className="font-sans text-xl font-extrabold tracking-[0.14em] text-[#101010]">
-              WEIR
-            </span>
-          </div>
-          <span className="hidden sm:inline-block font-mono text-[10px] uppercase px-2 py-0.5 rounded-full bg-black/5 text-[#101010]/70 border border-black/10 font-medium">
-            CREDITCOIN RWA #4518
+    <nav className="fixed top-0 left-0 w-full z-50 bg-[#0E0E0E]/80 backdrop-blur-xl border-b border-[#222222] transition-all duration-300">
+      <div className="max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-16 py-3.5 flex items-center justify-between">
+        {/* 2D Vector Brand Logo */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <WeirLogo className="w-6 h-6 shrink-0" />
+          <span className="text-xl font-bold tracking-tight text-white font-sans">
+            WEIR<span className="text-[#3773FF]">.io</span>
           </span>
         </Link>
-      </div>
 
-      {/* Center: Navigation Links (Exact Dusk Header Typography & Spacing) */}
-      <ul className="hidden md:flex items-center gap-8 lg:gap-11 text-[11px] font-bold tracking-[0.16em] uppercase">
-        <li>
-          <Link 
-            href="/" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "home" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
-          >
-            HOME
-          </Link>
-        </li>
-        <li>
-          <Link 
-            href="/network" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "network" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
-          >
-            NETWORK
-          </Link>
-        </li>
-        <li>
-          <Link 
-            href="/developers" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "developers" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
-          >
-            DEVELOPERS
-          </Link>
-        </li>
-        <li>
-          <Link 
-            href="/console" 
-            className={`transition-opacity hover:opacity-60 ${activePage === "console" ? "text-[#101010] border-b-2 border-[#101010] pb-1" : "text-[#101010]/70"}`}
-          >
-            CONSOLE
-          </Link>
-        </li>
-      </ul>
+        {/* Apple-grade Nav Links */}
+        <ul className="hidden md:flex items-center gap-1 text-xs font-semibold tracking-wide text-[#B0B0B0] bg-[#161616]/60 p-1 rounded-md border border-[#242424]">
+          <li>
+            <Link
+              href="/"
+              className={`px-4 py-1.5 rounded-[3px] transition-all block ${
+                activePage === "home"
+                  ? "bg-[#262626] text-white shadow-sm"
+                  : "hover:text-white hover:bg-white/[0.04]"
+              }`}
+            >
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/architecture"
+              className={`px-4 py-1.5 rounded-[3px] transition-all block ${
+                activePage === "architecture" || activePage === "platforms"
+                  ? "bg-[#262626] text-white shadow-sm"
+                  : "hover:text-white hover:bg-white/[0.04]"
+              }`}
+            >
+              Platforms
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/docs"
+              className={`px-4 py-1.5 rounded-[3px] transition-all block ${
+                activePage === "docs"
+                  ? "bg-[#262626] text-white shadow-sm"
+                  : "hover:text-white hover:bg-white/[0.04]"
+              }`}
+            >
+              Docs
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/console"
+              className={`px-4 py-1.5 rounded-[3px] transition-all block ${
+                activePage === "console"
+                  ? "bg-[#262626] text-white shadow-sm"
+                  : "hover:text-white hover:bg-white/[0.04]"
+              }`}
+            >
+              Console
+            </Link>
+          </li>
+        </ul>
 
-      {/* Right: Search + Action Pill Button */}
-      <div className="flex items-center gap-3">
-        <Link 
-          href="/console#ledger" 
-          aria-label="Search Audit Trail" 
-          className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#101010] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-[#F2EFF7] transition-all"
-        >
-          <Search className="w-4 h-4 text-[#101010]" />
-        </Link>
-        <Link 
-          href="/console" 
-          className="hidden sm:inline-flex rounded-full bg-[#1C1C1E] hover:bg-black text-white px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-all shadow-sm active:scale-95"
-        >
-          LAUNCH CONSOLE
-        </Link>
+        {/* Right CTA Button (Apple-grade Stark White) */}
+        <div className="hidden md:flex items-center gap-4">
+          <Link
+            href="/console"
+            className="apple-btn-primary py-2 px-5 text-[11px]"
+          >
+            Launch Console
+          </Link>
+        </div>
 
-        {/* Mobile menu toggle button */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-          className="md:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#101010] shadow-sm"
+        {/* Mobile Toggle */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden text-white p-1 rounded hover:bg-neutral-900"
           aria-label="Toggle menu"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {mobileMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-4 right-4 bg-[#101010] text-white p-6 rounded-3xl shadow-2xl border border-[#2E2D30] flex flex-col gap-4 md:hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
+        <div className="md:hidden bg-[#0E0E0E]/95 backdrop-blur-2xl border-b border-[#222222] px-6 py-6 space-y-4 text-sm font-semibold">
+          <Link
+            href="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 ${activePage === "home" ? "text-white font-bold" : "text-neutral-400"}`}
+          >
             Home
           </Link>
-          <Link href="/network" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            Network &amp; Precompile 0x0FD2
+          <Link
+            href="/architecture"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 ${activePage === "architecture" ? "text-white font-bold" : "text-neutral-400"}`}
+          >
+            Platforms & Architecture
           </Link>
-          <Link href="/developers" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            Developers &amp; Contracts
+          <Link
+            href="/docs"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 ${activePage === "docs" ? "text-white font-bold" : "text-neutral-400"}`}
+          >
+            Documentation
           </Link>
-          <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold uppercase tracking-wider py-2 border-b border-[#2E2D30]">
-            Settlement Console
+          <Link
+            href="/console"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block py-1.5 ${activePage === "console" ? "text-white font-bold" : "text-neutral-400"}`}
+          >
+            Console (Live Workstation)
           </Link>
-          <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="mt-2 text-center rounded-full bg-white text-black py-3 text-xs font-bold uppercase tracking-wider">
-            Launch Console
-          </Link>
+
+          <div className="pt-2">
+            <Link
+              href="/console"
+              onClick={() => setMobileMenuOpen(false)}
+              className="apple-btn-primary w-full text-center"
+            >
+              Launch Console
+            </Link>
+          </div>
         </div>
       )}
     </nav>

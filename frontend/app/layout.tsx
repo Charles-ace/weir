@@ -16,6 +16,13 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "WEIR | Infrastructure for Regulated Onchain Real-World Cash Flows",
   description: "Creditcoin Attestcoin infrastructure for verifiable real-world asset revenues with cryptographic inclusion proofs (precompile 0x0FD2) and deterministic O(1) dividend settlement.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg?v=2", type: "image/svg+xml" },
+      { url: "/favicon.ico?v=2" }
+    ],
+    apple: "/apple-touch-icon.png?v=2"
+  }
 };
 
 export default function RootLayout({

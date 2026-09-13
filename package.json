@@ -7,7 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "test": "npx hardhat test",
+    "test:e2e": "python tests/e2e_console_test.py"
   },
   "keywords": [],
   "author": "",
