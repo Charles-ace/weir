@@ -151,13 +151,18 @@ async function startDaemon() {
 
   const pollIntervalMs = 12000; // 12-second Sepolia block time
   let heartbeatCounter = 0;
+  let isProcessing = false;
 
   setInterval(async () => {
+    if (isProcessing) return;
+    isProcessing = true;
+
     try {
       const latest = await sepoliaProvider.getBlockNumber();
       if (latest > lastScannedBlock) {
         const fromBlock = lastScannedBlock + 1;
         const toBlock = latest;
+        lastScannedBlock = toBlock;
 
         const filter = vault.filters.RevenueDeposited();
         const events = await vault.queryFilter(filter, fromBlock, toBlock);
@@ -178,7 +183,6 @@ async function startDaemon() {
             }
           }
         }
-        lastScannedBlock = toBlock;
       }
 
       heartbeatCounter++;
@@ -187,6 +191,8 @@ async function startDaemon() {
       }
     } catch (pollErr) {
       console.error("[DAEMON POLL ERROR]", pollErr.message);
+    } finally {
+      isProcessing = false;
     }
   }, pollIntervalMs);
 }
