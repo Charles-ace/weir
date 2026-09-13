@@ -150,11 +150,15 @@ node scripts/probe_risk_burndown.js
 ```
 *Captures live latency and precompile existence against Creditcoin CC3 and Sepolia.*
 
-### 3. Launch Interactive Frontend Dashboard
+### 3. Run Console E2E Playwright Suite (23 Browser Checks)
 ```bash
-npm run dev --prefix frontend
+npm run test:e2e
 ```
-Open [http://localhost:3000](http://localhost:3000) to interact with the live 3-conduit demo.
+*Validates full-cycle $10k inflow, Attestcoin 4-stage pipeline, O(1) pull-claims, and covenant shortfall breach alerts.*
+
+### 4. Live Production Deployment
+- **Web Console & Documentation:** [https://frontend-omega-nine-48.vercel.app](https://frontend-omega-nine-48.vercel.app)
+- **Local Dev:** `npm run dev --prefix frontend` (loads on [http://localhost:3000](http://localhost:3000))
 
 ---
 
